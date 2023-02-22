@@ -1,0 +1,38 @@
+{
+  "name": "tail-and-socket-test",
+  "version": "0.0.1",
+  "description": "The pilot project for testing the tail and socket functions",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon ./src/app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyungsbi/tail-and-socket-test.git"
+  },
+  "keywords": [
+    "tail",
+    "socket",
+    "socket.io"
+  ],
+  "author": "hyungsbi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hyungsbi/tail-and-socket-test/issues"
+  },
+  "homepage": "https://github.com/hyungsbi/tail-and-socket-test#readme",
+  "dependencies": {
+    "@logdna/tail-file": "^3.0.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "morgan": "^1.10.0",
+    "nunjucks": "^3.2.3",
+    "socket.io": "^4.6.1",
+    "split2": "^4.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
