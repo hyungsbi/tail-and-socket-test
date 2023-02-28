@@ -1,66 +1,122 @@
 //const WebSocket = require('ws');
 const SocketIO = require('socket.io');
+const OUT_1_PATH = "D:/ws/svn/D2MapServer/logs/D2MapServer-out-1.log";
+const ERR_1_PATH = "D:/ws/svn/D2MapServer/logs/D2MapServer-error-1.log";
 const OUT_2_PATH = "D:/ws/svn/D2MapServer/logs/D2MapServer-out-2.log";
+const ERR_2_PATH = "D:/ws/svn/D2MapServer/logs/D2MapServer-error-2.log";
 const TailFile = require('@logdna/tail-file');
 const split2 = require('split2');
 
 module.exports = (server) => {
 
-  const tail = new TailFile(OUT_2_PATH);
-  tail.on('tail_error', (err) => {
+  /* const tail_out_2 = new TailFile(OUT_2_PATH);
+  tail_out_2.on('tail_error', (err) => {
     console.error('[TAIL ERROR] :', err);
   });
-  tail.start();
+  tail_out_2.start(); */
   //express의 server와 연결
   //const io = SocketIO(server, {path: '/socket.io'});
-  const io = SocketIO(server, {path: '/log'});
-  // 클라이언트 connection 이벤트 핸들러 : 클라이언트에서 접속 시 실행
-  io.on('connection', (socket) => {
+
+  const io = SocketIO(server, {
+    path: '/socket.io',
+    cors: {
+      origin: '*'
+    }
+  });
+
+  // D2MapServer-1 out log
+  io.of('/out_1').on('connection', (socket) => {
     const req = socket.request;
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log('새로운 클라이언트 접속!', ip, socket.id);
-    socket.on('disconnect', () => {
-      console.log('클라이언트 접속 해제', ip, socket.id);
-      //clearInterval(socket.interval);
+    console.log('새로운 클라이언트 접속 : out_1', ip, socket.id);
+    
+    const tail_out_1 = new TailFile(OUT_1_PATH);
+    tail_out_1.on('tail_error', (err) => {
+      console.error('[TAIL_ERROR :', OUT_1_PATH, ']', err);
     });
-    socket.on('error', (error) => {
-      console.error(error);
-    });
-    socket.on('reply', (data) => {
-      console.log(data);
-    });
-    /* socket.interval = setInterval(() => {
-      socket.emit('OUT_1', '안녕, 난 Socket.IO야!! [' + (new Date().toLocaleString()) + ']');
-    }, 3000); */
-    tail
+    tail_out_1.start();
+    tail_out_1
     .pipe(split2())
     .on('data', (line) => {
       console.log(line);
-      socket.emit('OUT_2', line);
+      socket.emit('log', line.replace(/\u001b\[\d+m/g, ''));
+    });
+
+    socket.on('disconnect', () => {
+      console.log('클라이언트 접속 해제', ip, socket.id);
+      tail_out_1.quit();
     });
   });
-  /* wss.on('connection', (ws, req) => {
+
+  // D2MapServer-1 err log
+  io.of('/err_1').on('connection', (socket) => {
+    const req = socket.request;
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    console.log('새로운 클라이언트 접속', ip);
-
-    // message 이벤트 핸들러 : 클라이언트에서 메시지 전송 시 실행
-    ws.on('message', (message) => {
-      console.log(message.toString('utf-8'));
+    console.log('새로운 클라이언트 접속 : err_1', ip, socket.id);
+    
+    const tail_err_1 = new TailFile(ERR_1_PATH);
+    tail_err_1.on('tail_error', (err) => {
+      console.error('[TAIL_ERROR :', ERR_1_PATH, ']', err);
     });
-    // error 이벤트 핸들러 : 에러 발생 시 실행
-    ws.on('error', (error) => {
-      console.error(error);
-    });
-    // close 이벤트 핸들러 : 클라이언트에서 접속 해제시 실행
-    ws.on('close', () => {
-      console.log('클라이언트 접속 해제', ip);
-      clearInterval(ws.interval);
+    tail_err_1.start();
+    tail_err_1
+    .pipe(split2())
+    .on('data', (line) => {
+      console.log(line);
+      socket.emit('log', line.replace(/\u001b\[\d+m/g, ''));
     });
 
-    ws.interval = setInterval(() => {
-      if (ws.readyState === ws.OPEN) {
-        ws.send('나는 서버야, 안녕! [' + (new Date()).toLocaleString() + ']');
-      }
-    }, 3000);
-  }); */
+    socket.on('disconnect', () => {
+      console.log('클라이언트 접속 해제', ip, socket.id);
+      tail_err_1.quit();
+    });
+  });
+  
+  // D2MapServer-2 out log
+  io.of('/out_2').on('connection', (socket) => {
+    const req = socket.request;
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    console.log('새로운 클라이언트 접속 : out_2', ip, socket.id);
+    
+    const tail_out_2 = new TailFile(OUT_2_PATH);
+    tail_out_2.on('tail_error', (err) => {
+      console.error('[TAIL_ERROR :', OUT_2_PATH, ']', err);
+    });
+    tail_out_2.start();
+    tail_out_2
+    .pipe(split2())
+    .on('data', (line) => {
+      console.log(line);
+      socket.emit('log', line.replace(/\u001b\[\d+m/g, ''));
+    });
+
+    socket.on('disconnect', () => {
+      console.log('클라이언트 접속 해제', ip, socket.id);
+      tail_out_2.quit();
+    });
+  });
+
+  // D2MapServer-2 err log
+  io.of('/err_2').on('connection', (socket) => {
+    const req = socket.request;
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    console.log('새로운 클라이언트 접속 : err_2', ip, socket.id);
+    
+    const tail_err_2 = new TailFile(ERR_2_PATH);
+    tail_err_2.on('tail_error', (err) => {
+      console.error('[TAIL_ERROR :', ERR_2_PATH, ']', err);
+    });
+    tail_err_2.start();
+    tail_err_2
+    .pipe(split2())
+    .on('data', (line) => {
+      console.log(line);
+      socket.emit('log', line.replace(/\u001b\[\d+m/g, ''));
+    });
+
+    socket.on('disconnect', () => {
+      console.log('클라이언트 접속 해제', ip, socket.id);
+      tail_err_2.quit();
+    });
+  });
 };

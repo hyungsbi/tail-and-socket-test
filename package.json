@@ -4,7 +4,7 @@
   "description": "The pilot project for testing the tail and socket functions",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon ./src/app"
+    "start": "nodemon ./src/app.js"
   },
   "repository": {
     "type": "git",
